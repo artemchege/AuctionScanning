@@ -16,20 +16,35 @@ def AHP():
     auto.start()
     print("Мы в конце блока try")
 
-def print_i(y): #функция которая печатает i через 5 секунд
-    for i in range(y):
-        if myflag is True:
-            print (i, myflag)
-            time.sleep(5)
+def do_moovs():
+    global myflag
+    #print(myflag, " str 22")
+    auto1 = AutoHotPy()
+    auto1.registerExit(auto1.X, exitAutoHotKey1)
+    auto1.registerForKeyDown(auto1.A, superCombo)
+    auto1.start()
+
+    #for i in range(y):
+        #if myflag is True:
+            #print (i, myflag)
+            #time.sleep(5)
 
 def exitAutoHotKey(autohotpy, event):
     global myflag
-    print("Провалились в exitAutoHotKey")
+    print("Провалились в exitAutoHotKey который вызвали из AHP")
     myflag=False
+    print(myflag, " значение myflag из exitAutoHotKey")
     autohotpy.stop()
 
+def exitAutoHotKey1(autohotpy, event):
+    #global myflag
+    print("Провалились в exitAutoHotKey который вызвали из do_movs")
+    #myflag=False
+    autohotpy.stop()
 
 def superCombo(autohotpy, event):
+    while myflag is True:
+        print(myflag)
         try:
             stroke = InterceptionMouseStroke()
             pyautogui.moveTo(680, 560, 2)
@@ -49,7 +64,7 @@ def superCombo(autohotpy, event):
 
 if __name__ == "__main__":
     try:
-        threadOne = threading.Thread(target=print_i, args=(10,), name="first thread")
+        threadOne = threading.Thread(target=do_moovs, name="first thread")
         threadTwo = threading.Thread(target=AHP, name="second thread")
         threadOne.start()
         threadTwo.start()
