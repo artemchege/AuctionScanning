@@ -1,0 +1,8 @@
+venv/
+.idea/
+__pycache__/
+*.png
+*.tif
+*.jpg
+f-test.py
+Example
