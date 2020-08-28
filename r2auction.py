@@ -6,84 +6,166 @@ import pytesseract
 import sys
 from pytesseract import Output
 from clicker import *
+import sqlite3
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract' #строчка что бы path работала не прописывая
+"""
+Возмжноные доработки:
+1. Вынести ресайз отдельной функцией?
+2. Сделать каскадный вызов преобразования изображения? Функция сразу передает рехультат другой без сохрана
+3. Исправить весь PEP8, добавить в requirements новые модули
+4. Возможно модернизировать запись в базу что бы сотни разделиялись пробелами?
+5. Пролистать блокнот, там тоже были some suggestions
+6. На ПН: все функции готовы, осталось собрать в куч, отрефакторить и протестировать на компе иры
+7. Прокомментировать все функции
+8. Расставить try except на тонках участках
+9. После тестов возможно написать интерфейс? 
+"""
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'  # строчка что бы path работала не прописывая
+
 
 def make_screen(name):
-	screen = pyautogui.screenshot()
-	screen.save(f"{name}.jpg")
-
-def make_screen_advanced(name, x, y, width=340, height=410):
-	#сделать ее умной и указывать с какого окна брать скрин? иначе выставить тайминг на старт программы
-	screen = pyautogui.screenshot(region=(x+160, y+19, width, height)) #160 и 19 поправки относительно точки клика 
-	screen.save(f"{name}.jpg")
-
-def make_sharpness(img):
-	im = Image.open(img)
-	im = im.resize((2720, 1536), 1) #х2, учесть что дальше по коду координаты делятся на 2 для приведения к нормальному размеру
-	enhancer = ImageEnhance.Sharpness(im) #увеличиваем резкость
-	enhanced_im = enhancer.enhance(6.0) #опыт покахал что 6х оптимум
-	enhanced_im.save("st1.sharpness.resize.png")
-
-def made_black_white(img):
-	mode = 5  # Считываем номер преобразования.
-	image = Image.open(img)  # Открываем изображение.
-	draw = ImageDraw.Draw(image)  # Создаем инструмент для рисования.
-	width = image.size[0]  # Определяем ширину.
-	height = image.size[1]  # Определяем высоту.
-	pix = image.load()  # Выгружаем значения пикселей
-	if (mode == 5):
-		factor = 0
-		for i in range(width):
-			for j in range(height):
-				a = pix[i, j][0]
-				b = pix[i, j][1]
-				c = pix[i, j][2]
-				S = a + b + c
-				if (S > (((255 + factor) // 2) * 3)):
-					a, b, c = 0, 0, 0 #черный
-				else:
-					a, b, c = 255, 255, 255 #белый
-				draw.point((i, j), (a, b, c))
-	image.save("st2.black.white.jpg", "JPEG") #сейвим новый рисунок
-	del draw #удаляем кисть
-
-def recognition(img): #передаем финальное изображение тессаракту
-	#image_to_string можно также использовать этоЮ более информативно
-	text = pytesseract.image_to_data(img, lang="rus", config="get.images", output_type=Output.DICT) #данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
-	#print(text)
-	return text
-
-def get_coordinates(list): #ищем слово предложения и на его основе возвращаем кординаты для кликов
-	try:
-		length = len(list["level"])
-		for i in list:
-			for j in range(length - 1):
-				if list[i][j] == "Предложения":
-					position = j
-		result = dict()
-		result["x"]=int((list["left"][position]+(list["width"][position])/2+70)/2) #и чуть вправо на 70 пикселей, после делить на 2 что бы привести координаты к стандартному размеру
-		result["y"]=int((list["top"][position]+(list["height"][position])/2+150)/2) #и опустимся на 150 пикселей ниже
-		return result
-	except:
-		print("some errors occured doing get_coordinates(list)")
+    screen = pyautogui.screenshot()
+    screen.save(f"{name}.png")
 
 
-def make_screen_get_coordinates(): #создает скрин и возаращает координаты слова Предложения
-	#make_screen("name") позже связать функцию с последующими, синхронизировать названия, пока для отладки отключено
-	make_sharpness("fullscreen.png")
-	made_black_white("st1.sharpness.resize.png")
-	coord = get_coordinates(recognition("st2.black.white.jpg"))
-	make_screen_advanced("after_advanced", coord["x"], coord["y"])
+def make_screen_advanced(name, x, y, width, height=410):
+    # сделать ее умной и указывать с какого окна брать скрин? иначе выставить тайминг на старт программы
+    screen = pyautogui.screenshot(region=(x + 160, y - 14, width, height))  # 160 и 14 поправки относительно точки клика
+    screen.save(f"{name}.jpg")
 
 
-print(make_screen_get_coordinates())
+def make_sharpness(img, resize, save_as):
+    im = Image.open(img)
+    width, height = im.size
+    im = im.resize((width * resize, height * resize), 1)
+    enhancer = ImageEnhance.Sharpness(im)  # увеличиваем резкость
+    enhanced_im = enhancer.enhance(6.0)  # опыт покахал что 6х оптимум
+    enhanced_im.save(f"{save_as}.png")
 
 
-#сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
+def make_black_white(img, save_as):
+    mode = 5  # Считываем номер преобразования.
+    image = Image.open(img)  # Открываем изображение.
+    draw = ImageDraw.Draw(image)  # Создаем инструмент для рисования.
+    width = image.size[0]  # Определяем ширину.
+    height = image.size[1]  # Определяем высоту.
+    pix = image.load()  # Выгружаем значения пикселей
+    if (mode == 5):
+        factor = 0
+        for i in range(width):
+            for j in range(height):
+                a = pix[i, j][0]
+                b = pix[i, j][1]
+                c = pix[i, j][2]
+                S = a + b + c
+                if (S > (((255 + factor) // 2) * 3)):
+                    a, b, c = 0, 0, 0  # черный
+                else:
+                    a, b, c = 255, 255, 255  # белый
+                draw.point((i, j), (a, b, c))
+    image.save(f"{save_as}.jpg", "JPEG")  # сейвим новый рисунок
+    del draw  # удаляем кисть
+
+
+def recognition(img, output="list"):  # передаем финальное изображение тессаракту
+    if output == "dictionary":
+        text = pytesseract.image_to_data(img, lang="rus", config="get.images", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+    else:
+        text = pytesseract.image_to_string(img, lang="rus", config="get.images")
+    return text
+
+
+def get_coordinates(list):  # ищем слово предложения и на его основе возвращаем кординаты для кликов
+    try:
+        length = len(list["level"])
+        for i in list:
+            for j in range(length - 1):
+                if list[i][j] == "Предложения":
+                    position = j
+        result = dict()
+        result["x"] = int((list["left"][position] + (list["width"][
+            position]) / 2 + 70) / 2)  # и чуть вправо на 70 пикселей, после делить на 2 что бы привести координаты к стандартному размеру
+        result["y"] = int(
+            (list["top"][position] + (list["height"][position]) / 2 + 150) / 2)  # и опустимся на 150 пикселей ниже
+        return result
+    except:
+        print("some errors occured doing get_coordinates(list)")
+
+
+def make_screen_get_coordinates():  # создает скрин и возаращает координаты слова Предложения
+    time.sleep(10)  # даем 10 сек что бы успеть переключиться на р2
+    #make_screen("fullscreen") #позже связать функцию с последующими, синхронизировать названия, пока для отладки отключено
+    make_sharpness("fullscreen.png", 2, "FirstScreenSt1")
+    make_black_white("FirstScreenSt1.png", "FirstScreenSt2")
+    coord = get_coordinates(recognition("FirstScreenSt2.jpg", output="dictionary"))
+    return coord
+
+def delete_empty_element(income_list):
+    result = list()
+    for i in income_list:
+        if len(i)>0:
+            result.append(i)
+    return result
+
+def delete_spaces(income_list):
+    result = list()
+    for i in income_list:
+        result.append(i.replace(" ", ""))
+    return result
+
+def get_data():
+    #coord = make_screen_get_coordinates()
+    #make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
+    #make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
+    #make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
+    items = recognition("EndlessScreenItemSt2.jpg").split("\n")
+    items = delete_empty_element(items)
+    #print(items)
+    #print()
+    #make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 160)
+    #make_sharpness("EndlessScreenPrices.jpg", 3, "EndlessScreenPricesSt1")
+    #make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2")
+    prices = recognition("EndlessScreenPricesSt2.jpg").split("\n")
+    prices = delete_spaces(delete_empty_element(prices))
+    #print(prices)
+    return items, prices
+
+
+def write_bd_dont_use(name, price):
+    conn = sqlite3.connect("db.db")
+    cursor = conn.cursor()
+    query = "INSERT INTO auction_data (name, price, date, time) VALUES ("+"'"+name+"'"+", "+"'"+price+"'"+", CURRENT_DATE, CURRENT_TIME)"
+    print(query)
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+def write_db(data):
+    if len(data[0])!=len(data[1]): #проверим что колличество цен совпадает с колличеством предметов
+        print("Lenght of incomming massives in write_db() arent equal")
+        return "Lenght of incomming massives in write_db() arent equal"
+    conn = sqlite3.connect("db.db")
+    cursor = conn.cursor()
+    for i in range(8):
+        name = data[0][i]
+        price = data[1][i]
+        query = "INSERT INTO auction_data (name, price, date, time) VALUES (" + "'" + name + "'" + ", " + "'" + price + "'" + ", CURRENT_DATE, CURRENT_TIME)"
+        cursor.execute(query)
+        conn.commit()
+    conn.close()
+
+def main():
+    massives = get_data()
+    write_db(massives)
+
+#get_data()
+main()
+
+# сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
 # согласно исследованиями максимальная эффективность
-#также можно выключить словарь, в оф документации написано конфинг строги для этого
-#оф документация здесь https://tesseract-ocr.github.io/tessdoc/ImproveQuality
+# также можно выключить словарь, в оф документации написано конфинг строги для этого
+# оф документация здесь https://tesseract-ocr.github.io/tessdoc/ImproveQuality
 """
 	#now = datetime.datetime.now()
 	#print(now.strftime("%d-%m-%Y %H:%M:%S"), "время до")
