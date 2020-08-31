@@ -2,6 +2,8 @@ import pyautogui
 #from r2auction import *
 import sqlite3
 from PIL import Image
+import datetime
+from functions import *
 
 
 def write_bd(name, price):
@@ -21,12 +23,9 @@ def delete_spaces(income_list):
         result.append(i.replace(" ", ""))
     return result
 
-x = ['4 710 000', '1630 009', '324 223', '324 222', '4 499 000', '2990 008', '2990 000', '2889 999']
-print(x, "до")
-x = delete_spaces(x)
-print(x)
 
-for i in range(8):
-    print(i)
+print(global_coord)
 
+now = datetime.datetime.now()
+print(now.strftime("%H:%M:%S"))
 

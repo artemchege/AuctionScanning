@@ -4,6 +4,8 @@ from InterceptionWrapper import InterceptionMouseState, InterceptionMouseStroke
 import time
 import pyautogui
 import threading
+import datetime
+from functions import *
 
 """
 Future improvings:
@@ -39,18 +41,19 @@ def stop_programm(autohotpy, event): #закрывает программу
 def superCombo(autohotpy, event): #действия в бесконечном цикле прерываем флагом
     print("A is pressed, starting endless clicking cycle")
     while myflag is True:
+
+        massives = get_data()
+        write_db(massives)
+
         stroke = InterceptionMouseStroke()
-        pyautogui.moveTo(680, 560, 2)
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN
+        pyautogui.moveTo(global_coord["x"], global_coord["y"], 2)
+        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
         autohotpy.sendToDefaultMouse(stroke)
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_UP
+        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
         autohotpy.sendToDefaultMouse(stroke)
-        pyautogui.moveTo(880, 560, 2)
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN
-        autohotpy.sendToDefaultMouse(stroke)
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_RIGHT_BUTTON_UP
-        autohotpy.sendToDefaultMouse(stroke)
-        time.sleep(5)
+
+        now = datetime.datetime.now()
+        print(now.strftime("%H:%M:%S"))
 
 if __name__ == "__main__": #инициалихируем 2 потока
     threadOne = threading.Thread(target=do_moovs, name="first thread") #первый поток запускает кликера

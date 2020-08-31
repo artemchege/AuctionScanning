@@ -3,7 +3,6 @@ venv/
 __pycache__/
 *.png
 *.tif
-*.db
 *.jpg
 db.db-journal
 f-test.py

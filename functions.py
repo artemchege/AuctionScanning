@@ -1,11 +1,9 @@
+# -*- coding: utf-8 -*-
 from PIL import Image, ImageEnhance, ImageDraw, ImageFilter
 import pyautogui
 import time
-#import datetime
 import pytesseract
-#import sys
 from pytesseract import Output
-#from run import *
 import sqlite3
 
 """
@@ -23,6 +21,7 @@ import sqlite3
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'  # строчка что бы path работала не прописывая
 
+global_coord = dict()
 
 def make_screen(name):
     screen = pyautogui.screenshot()
@@ -94,11 +93,13 @@ def get_coordinates(list):  # ищем слово предложения и на
 
 
 def make_screen_get_coordinates():  # создает скрин и возаращает координаты слова Предложения
+    global global_coord
     time.sleep(10)  # даем 10 сек что бы успеть переключиться на р2
-    make_screen("fullscreen") #позже связать функцию с последующими, синхронизировать названия, пока для отладки отключено
+    make_screen("fullscreen")
     make_sharpness("fullscreen.png", 2, "FirstScreenSt1")
     make_black_white("FirstScreenSt1.png", "FirstScreenSt2")
     coord = get_coordinates(recognition("FirstScreenSt2.jpg", output="dictionary"))
+    global_coord = coord
     return coord
 
 def delete_empty_element(income_list):
@@ -115,7 +116,7 @@ def delete_spaces(income_list):
     return result
 
 def get_data():
-    coord = make_screen_get_coordinates()
+    coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
     make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
     make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
     make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
@@ -146,11 +147,10 @@ def write_db(data):
     conn.close()
 
 def main():
-    massives = get_data()
-    write_db(massives)
-
-#get_data()
-#main()
+    pass
+    #get_data()
+    #massives = get_data()
+    #write_db(massives)
 
 # сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
 # согласно исследованиями максимальная эффективность
