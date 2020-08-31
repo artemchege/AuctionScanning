@@ -1,11 +1,11 @@
 from PIL import Image, ImageEnhance, ImageDraw, ImageFilter
 import pyautogui
 import time
-import datetime
+#import datetime
 import pytesseract
-import sys
+#import sys
 from pytesseract import Output
-from clicker import *
+#from run import *
 import sqlite3
 
 """
@@ -95,7 +95,7 @@ def get_coordinates(list):  # ищем слово предложения и на
 
 def make_screen_get_coordinates():  # создает скрин и возаращает координаты слова Предложения
     time.sleep(10)  # даем 10 сек что бы успеть переключиться на р2
-    #make_screen("fullscreen") #позже связать функцию с последующими, синхронизировать названия, пока для отладки отключено
+    make_screen("fullscreen") #позже связать функцию с последующими, синхронизировать названия, пока для отладки отключено
     make_sharpness("fullscreen.png", 2, "FirstScreenSt1")
     make_black_white("FirstScreenSt1.png", "FirstScreenSt2")
     coord = get_coordinates(recognition("FirstScreenSt2.jpg", output="dictionary"))
@@ -115,31 +115,21 @@ def delete_spaces(income_list):
     return result
 
 def get_data():
-    #coord = make_screen_get_coordinates()
-    #make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
-    #make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
-    #make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
+    coord = make_screen_get_coordinates()
+    make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
+    make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
+    make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
     items = recognition("EndlessScreenItemSt2.jpg").split("\n")
     items = delete_empty_element(items)
-    #print(items)
-    #print()
-    #make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 160)
-    #make_sharpness("EndlessScreenPrices.jpg", 3, "EndlessScreenPricesSt1")
-    #make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2")
+    print(items)
+    print()
+    make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 140)
+    make_sharpness("EndlessScreenPrices.jpg", 3, "EndlessScreenPricesSt1")
+    make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2")
     prices = recognition("EndlessScreenPricesSt2.jpg").split("\n")
     prices = delete_spaces(delete_empty_element(prices))
-    #print(prices)
+    print(prices)
     return items, prices
-
-
-def write_bd_dont_use(name, price):
-    conn = sqlite3.connect("db.db")
-    cursor = conn.cursor()
-    query = "INSERT INTO auction_data (name, price, date, time) VALUES ("+"'"+name+"'"+", "+"'"+price+"'"+", CURRENT_DATE, CURRENT_TIME)"
-    print(query)
-    cursor.execute(query)
-    conn.commit()
-    conn.close()
 
 def write_db(data):
     if len(data[0])!=len(data[1]): #проверим что колличество цен совпадает с колличеством предметов
@@ -160,7 +150,7 @@ def main():
     write_db(massives)
 
 #get_data()
-main()
+#main()
 
 # сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
 # согласно исследованиями максимальная эффективность
