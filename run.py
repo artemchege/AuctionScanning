@@ -45,8 +45,13 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
         massives = get_data()
         write_db(massives)
 
+        coord = massives[2]
+        print(coord, "переданные координаты в superCombo")
+        print(coord["x"], "x координата")
+        print(coord["y"], "y координата")
+
         stroke = InterceptionMouseStroke()
-        pyautogui.moveTo(global_coord["x"], global_coord["y"], 2)
+        pyautogui.moveTo(coord["x"], coord["y"], 2)
         stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
         autohotpy.sendToDefaultMouse(stroke)
         stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP

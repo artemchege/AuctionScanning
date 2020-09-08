@@ -21,7 +21,7 @@ import sqlite3
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'  # строчка что бы path работала не прописывая
 
-global_coord = dict()
+#global_coord = {"x": 420, "y": 220}
 
 def make_screen(name):
     screen = pyautogui.screenshot()
@@ -117,6 +117,7 @@ def delete_spaces(income_list):
 
 def get_data():
     coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
+    print(coord, " координаты на входе get_data")
     make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
     make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
     make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
@@ -130,7 +131,7 @@ def get_data():
     prices = recognition("EndlessScreenPricesSt2.jpg").split("\n")
     prices = delete_spaces(delete_empty_element(prices))
     print(prices)
-    return items, prices
+    return items, prices, coord
 
 def write_db(data):
     if len(data[0])!=len(data[1]): #проверим что колличество цен совпадает с колличеством предметов
