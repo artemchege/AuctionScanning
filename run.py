@@ -44,11 +44,9 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
 
         massives = get_data()
         write_db(massives)
+        buy(massives)
 
         coord = massives[2]
-        print(coord, "переданные координаты в superCombo")
-        print(coord["x"], "x координата")
-        print(coord["y"], "y координата")
 
         stroke = InterceptionMouseStroke()
         pyautogui.moveTo(coord["x"], coord["y"], 2)
@@ -59,6 +57,7 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
 
         now = datetime.datetime.now()
         print(now.strftime("%H:%M:%S"))
+        time.sleep(15)
 
 if __name__ == "__main__": #инициалихируем 2 потока
     threadOne = threading.Thread(target=do_moovs, name="first thread") #первый поток запускает кликера

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Any
+
 from PIL import Image, ImageEnhance, ImageDraw, ImageFilter
 import pyautogui
 import time
@@ -93,7 +95,6 @@ def get_coordinates(list):  # ищем слово предложения и на
 
 
 def make_screen_get_coordinates():  # создает скрин и возаращает координаты слова Предложения
-    global global_coord
     time.sleep(10)  # даем 10 сек что бы успеть переключиться на р2
     make_screen("fullscreen")
     make_sharpness("fullscreen.png", 2, "FirstScreenSt1")
@@ -117,20 +118,21 @@ def delete_spaces(income_list):
 
 def get_data():
     coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
-    print(coord, " координаты на входе get_data")
     make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
-    make_sharpness("EndlessScreenItem.jpg", 3, "EndlessScreenItemSt1")
+    make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1")
     make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
     items = recognition("EndlessScreenItemSt2.jpg").split("\n")
     items = delete_empty_element(items)
-    print(items)
+    for i in items:
+        print(i)
     print()
     make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 140)
-    make_sharpness("EndlessScreenPrices.jpg", 3, "EndlessScreenPricesSt1")
+    make_sharpness("EndlessScreenPrices.jpg", 6, "EndlessScreenPricesSt1")
     make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2")
     prices = recognition("EndlessScreenPricesSt2.jpg").split("\n")
     prices = delete_spaces(delete_empty_element(prices))
-    print(prices)
+    for i in prices:
+        print(i)
     return items, prices, coord
 
 def write_db(data):
@@ -140,12 +142,35 @@ def write_db(data):
     conn = sqlite3.connect("db.db")
     cursor = conn.cursor()
     for i in range(8):
-        name = data[0][i]
-        price = data[1][i]
-        query = "INSERT INTO auction_data (name, price, date, time) VALUES (" + "'" + name + "'" + ", " + "'" + price + "'" + ", CURRENT_DATE, CURRENT_TIME)"
+        name, price = data[0][i], data[1][i]
+        query= "INSERT INTO auction_data (name, price, date, time) VALUES (" + "'" + name + "'" + ", " + "'" + price + "'" + ", CURRENT_DATE, CURRENT_TIME)"
         cursor.execute(query)
         conn.commit()
     conn.close()
+
+def buy(data):
+    if len(data[0]) != len(data[1]):  # проверим что колличество цен совпадает с колличеством предметов
+        print("Lenght of incomming massives in write_db() arent equal")
+        return "Lenght of incomming massives in write_db() arent equal"
+    for i in range(8):
+        name, price = data[0][i], data[1][i]
+        if filter(name, price, i):
+            print("Тру", i)
+
+
+def filter(name, price, i):
+    try:
+        item_to_find="+0 Джамадхары убийцы"
+        price_to_find=5000000
+        if name==item_to_find:
+            if int(price)<price_to_find:
+                print(f"Предмет {item_to_find} по цене ниже {price_to_find} был найден")
+                print(f"Номер предмета на скрине: {i}")
+                return True
+    except Exception as e:
+        print(f"Возникла ошибка: {e}")
+    finally:
+        print("Фильтр пройден, совпадений не найдено")
 
 def main():
     pass
