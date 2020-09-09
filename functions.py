@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Any
+from InterceptionWrapper import InterceptionMouseState, InterceptionMouseStroke
 
 from PIL import Image, ImageEnhance, ImageDraw, ImageFilter
 import pyautogui
@@ -116,8 +117,8 @@ def delete_spaces(income_list):
         result.append(i.replace(" ", ""))
     return result
 
-def get_data():
-    coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
+def get_data(coord):
+    #coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
     make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
     make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1")
     make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
@@ -133,7 +134,7 @@ def get_data():
     prices = delete_spaces(delete_empty_element(prices))
     for i in prices:
         print(i)
-    return items, prices, coord
+    return items, prices
 
 def write_db(data):
     if len(data[0])!=len(data[1]): #проверим что колличество цен совпадает с колличеством предметов
@@ -148,15 +149,16 @@ def write_db(data):
         conn.commit()
     conn.close()
 
-def buy(data):
+def position_to_buy(data):
+    result = list()
     if len(data[0]) != len(data[1]):  # проверим что колличество цен совпадает с колличеством предметов
         print("Lenght of incomming massives in write_db() arent equal")
-        return "Lenght of incomming massives in write_db() arent equal"
+        return result
     for i in range(8):
         name, price = data[0][i], data[1][i]
-        if filter(name, price, i):
-            print("Тру", i)
-
+        if filter(name, price, i): #если фильтр дал результат
+            result.append(i)
+    return result
 
 def filter(name, price, i):
     try:
@@ -172,11 +174,6 @@ def filter(name, price, i):
     finally:
         print("Фильтр пройден, совпадений не найдено")
 
-def main():
-    pass
-    #get_data()
-    #massives = get_data()
-    #write_db(massives)
 
 # сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
 # согласно исследованиями максимальная эффективность
@@ -195,3 +192,22 @@ https://coderoad.ru/28935983/%D0%9F%D1%80%D0%B5%D0%B4%D0%B2%D0%B0%D1%80%D0%B8%D1
 https://stackoverrun.com/ru/q/11985017
 https://overcoder.net/q/871809/%D1%80%D0%B0%D1%81%D0%BF%D0%BE%D0%B7%D0%BD%D0%B0%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B2-%D1%82%D0%B5%D0%BA%D1%81%D1%82-%D1%81-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%D0%BC-tesseract-ocr-%D0%BB%D1%83%D1%87%D1%88%D0%B5-%D0%BA%D0%BE%D0%B3%D0%B4%D0%B0
 """
+"""print("Покупаю шмотку на позиции: ", i)
+x = coord["x"]+700 #смещаемся вправо на 700 пикселей
+print("Двигаемся к координате X: ", x)
+y= coord["y"] + 20 + i*50 #смещаемся уть вниз на 20 и потом на порядок шмотки в списке
+print("Двигаемся к координате Y: ", y)
+pyautogui.moveTo(x, y, 2)
+
+stroke = InterceptionMouseStroke()
+stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+autohotpy.sendToDefaultMouse(stroke)
+stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+autohotpy.sendToDefaultMouse(stroke)
+
+pyautogui.moveTo(976, 438, 1)
+
+stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+autohotpy.sendToDefaultMouse(stroke)
+stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+autohotpy.sendToDefaultMouse(stroke)"""

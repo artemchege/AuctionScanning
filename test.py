@@ -24,7 +24,6 @@ def delete_spaces(income_list):
     return result
 
 
-print(global_coord)
 
 now = datetime.datetime.now()
 print(now.strftime("%H:%M:%S"))

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from AutoHotPy import AutoHotPy  # we need to tell python that we are going to use the library
-from InterceptionWrapper import InterceptionMouseState, InterceptionMouseStroke
+#from InterceptionWrapper import InterceptionMouseState, InterceptionMouseStroke
 import time
 import pyautogui
 import threading
@@ -40,16 +40,60 @@ def stop_programm(autohotpy, event): #закрывает программу
 
 def superCombo(autohotpy, event): #действия в бесконечном цикле прерываем флагом
     print("A is pressed, starting endless clicking cycle")
+    coord = make_screen_get_coordinates()  # возможно вынести отдельной функцией и запускать 1 раз в начале
     while myflag is True:
 
-        massives = get_data()
+        massives = get_data(coord)
         write_db(massives)
-        buy(massives)
 
-        coord = massives[2]
+        buy = position_to_buy(massives)
+        print(buy, " это наш массив buy")
 
         stroke = InterceptionMouseStroke()
-        pyautogui.moveTo(coord["x"], coord["y"], 2)
+
+        if len(buy)>0:
+            for i in buy:
+                print("Покупаю шмотку на позиции: ", i)
+                x = coord["x"] + 700  # смещаемся вправо на 700 пикселей
+                print("Двигаемся к координате X: ", x)
+                y = coord["y"] + 20 + i * 50  # смещаемся уть вниз на 20 и потом на порядок шмотки в списке
+                print("Двигаемся к координате Y: ", y)
+
+                pyautogui.moveTo(x, y, 2)
+                autohotpy.moveMouseToPosition(x,y)
+
+
+                print("Сместились на кноку покупки КУПИТЬ")
+                time.sleep(1)
+
+                stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+                autohotpy.sendToDefaultMouse(stroke)
+                stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+                autohotpy.sendToDefaultMouse(stroke)
+
+                print("Нажали КУПИТЬ")
+                time.sleep(1)
+
+                pyautogui.moveTo(600, 440, 2)  # смещение на кнопку покупки
+                autohotpy.moveMouseToPosition(600, 440)
+
+
+                print("Сместились на кноку ОК")
+                time.sleep(1)
+
+                stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+                autohotpy.sendToDefaultMouse(stroke)
+                stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+                autohotpy.sendToDefaultMouse(stroke)
+
+                print("Нажали ОК")
+                time.sleep(1)
+
+        pyautogui.moveTo(coord["x"], coord["y"], 2) #двигаемся к началу и обновляем страницу аукцциона
+        autohotpy.moveMouseToPosition(coord["x"], coord["y"])
+
+        time.sleep(1)
+
         stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
         autohotpy.sendToDefaultMouse(stroke)
         stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
