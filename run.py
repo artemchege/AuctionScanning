@@ -5,6 +5,7 @@ import time
 import pyautogui
 import threading
 import datetime
+import shutil
 from functions import *
 
 """
@@ -40,11 +41,21 @@ def stop_programm(autohotpy, event): #закрывает программу
 
 def superCombo(autohotpy, event): #действия в бесконечном цикле прерываем флагом
     print("A is pressed, starting endless clicking cycle")
+
+    shutil.rmtree("cash/")
+    time.sleep(2)
+    os.mkdir("cash")
+
     coord = make_screen_get_coordinates()  # возможно вынести отдельной функцией и запускать 1 раз в начале
     while myflag is True:
 
-        massives = get_data(coord)
-        write_db(massives)
+        now = datetime.datetime.now()
+        current_time = now.strftime("%D:%H:%M:%S")
+        print(current_time, "our data-path")
+        #os.mkdir(f"cash/{path}")
+
+        massives = get_data(coord, current_time)
+        write_db(massives, current_time)
 
         buy = position_to_buy(massives)
         print(buy, " это наш массив buy")

@@ -8,6 +8,8 @@ import time
 import pytesseract
 from pytesseract import Output
 import sqlite3
+import os
+import datetime
 
 """
 Возмжноные доработки:
@@ -28,27 +30,39 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 def make_screen(name):
     screen = pyautogui.screenshot()
-    screen.save(f"{name}.png")
+    screen.save(f"cash/{name}.png")
 
 
-def make_screen_advanced(name, x, y, width, height=410):
-    # сделать ее умной и указывать с какого окна брать скрин? иначе выставить тайминг на старт программы
-    screen = pyautogui.screenshot(region=(x + 160, y - 14, width, height))  # 160 и 14 поправки относительно точки клика
-    screen.save(f"{name}.jpg")
+def make_screen_advanced(name, x, y, width, height=410, data_path=False):
+        screen = pyautogui.screenshot(region=(x + 160, y - 14, width, height))  # 160 и 14 поправки относительно точки клика
+        if data_path == False:
+            screen.save(f"cash/{name}.jpg")
+        else:
+            screen.save(f"cash/{data_path}/{name}.jpg")
 
 
-def make_sharpness(img, resize, save_as):
-    im = Image.open(img)
+
+def make_sharpness(img, resize, save_as, data_path=False):
+    if data_path == False:
+        im = Image.open(f"cash/{img}")
+    else:
+        im = Image.open(f"cash/{data_path}/{img}")
     width, height = im.size
     im = im.resize((width * resize, height * resize), 1)
     enhancer = ImageEnhance.Sharpness(im)  # увеличиваем резкость
     enhanced_im = enhancer.enhance(6.0)  # опыт покахал что 6х оптимум
-    enhanced_im.save(f"{save_as}.png")
+    if data_path == False:
+        enhanced_im.save(f"cash/{save_as}.png")
+    else:
+        enhanced_im.save(f"cash/{data_path}/{save_as}.png")
 
 
-def make_black_white(img, save_as):
+def make_black_white(img, save_as, data_path=False):
     mode = 5  # Считываем номер преобразования.
-    image = Image.open(img)  # Открываем изображение.
+    if data_path == False:
+        image = Image.open(f"cash/{img}")  # Открываем изображение.
+    else:
+        image = Image.open(f"cash/{data_path}/{img}")
     draw = ImageDraw.Draw(image)  # Создаем инструмент для рисования.
     width = image.size[0]  # Определяем ширину.
     height = image.size[1]  # Определяем высоту.
@@ -66,16 +80,26 @@ def make_black_white(img, save_as):
                 else:
                     a, b, c = 255, 255, 255  # белый
                 draw.point((i, j), (a, b, c))
-    image.save(f"{save_as}.jpg", "JPEG")  # сейвим новый рисунок
+    if data_path == False:
+        image.save(f"cash/{save_as}.jpg", "JPEG")  # сейвим новый рисунок
+    else:
+        image.save(f"cash/{data_path}/{save_as}.jpg", "JPEG")
     del draw  # удаляем кисть
 
 
-def recognition(img, output="list"):  # передаем финальное изображение тессаракту
-    if output == "dictionary":
-        text = pytesseract.image_to_data(img, lang="rus", config="get.images", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+def recognition(img, output="list", data_path=False):  # передаем финальное изображение тессаракту
+    if data_path == False:
+        if output == "dictionary":
+            text = pytesseract.image_to_data(f"cash/{img}", lang="rus", config="get.images", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+        else:
+            text = pytesseract.image_to_string(f"cash/{img}", lang="rus", config="get.images")
+        return text
     else:
-        text = pytesseract.image_to_string(img, lang="rus", config="get.images")
-    return text
+        if output == "dictionary":
+            text = pytesseract.image_to_data(f"cash/{data_path}/{img}", lang="rus", config="get.images", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+        else:
+            text = pytesseract.image_to_string(f"cash/{data_path}/{img}", lang="rus", config="get.images")
+        return text
 
 
 def get_coordinates(list):  # ищем слово предложения и на его основе возвращаем кординаты для кликов
@@ -117,26 +141,32 @@ def delete_spaces(income_list):
         result.append(i.replace(" ", ""))
     return result
 
-def get_data(coord):
-    #coord = make_screen_get_coordinates() #возможно вынести отдельной функцией и запускать 1 раз в начале
-    make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160)
-    make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1")
-    make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2")
-    items = recognition("EndlessScreenItemSt2.jpg").split("\n")
+def get_data(coord, time):
+
+    path  = time.replace("/","_").replace(":",".")
+    os.mkdir(f"cash/{path}")
+
+    make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160, data_path=path)
+    make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1", data_path=path)
+    make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2", data_path=path)
+    items = recognition("EndlessScreenItemSt2.jpg", data_path=path).split("\n")
     items = delete_empty_element(items)
     for i in items:
         print(i)
     print()
-    make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 140)
-    make_sharpness("EndlessScreenPrices.jpg", 6, "EndlessScreenPricesSt1")
-    make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2")
-    prices = recognition("EndlessScreenPricesSt2.jpg").split("\n")
+    make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 140, data_path=path)
+    make_sharpness("EndlessScreenPrices.jpg", 6, "EndlessScreenPricesSt1", data_path=path)
+    make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2", data_path=path)
+    prices = recognition("EndlessScreenPricesSt2.jpg", data_path=path).split("\n")
     prices = delete_spaces(delete_empty_element(prices))
     for i in prices:
         print(i)
     return items, prices
 
-def write_db(data):
+def write_db(data, time):
+    #now = datetime.datetime.now()
+    #time  = now.strftime("%H:%M:%S")
+    time = time[-8:]
     if len(data[0])!=len(data[1]): #проверим что колличество цен совпадает с колличеством предметов
         print("Lenght of incomming massives in write_db() arent equal")
         return "Lenght of incomming massives in write_db() arent equal"
@@ -144,7 +174,7 @@ def write_db(data):
     cursor = conn.cursor()
     for i in range(8):
         name, price = data[0][i], data[1][i]
-        query= "INSERT INTO auction_data (name, price, date, time) VALUES (" + "'" + name + "'" + ", " + "'" + price + "'" + ", CURRENT_DATE, CURRENT_TIME)"
+        query= "INSERT INTO auction_data (name, price, date, time) VALUES (" + "'" + name + "'" + ", " + "'" + price + "'" + ", CURRENT_DATE, " + "'" + time + "'" + ")"
         cursor.execute(query)
         conn.commit()
     conn.close()
