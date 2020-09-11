@@ -43,24 +43,42 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
     print("A is pressed, starting endless clicking cycle")
 
     shutil.rmtree("cash/")
-    time.sleep(2)
+    time.sleep(1)
     os.mkdir("cash")
+
+    count = 0
 
     coord = make_screen_get_coordinates()  # возможно вынести отдельной функцией и запускать 1 раз в начале
     while myflag is True:
 
+
         now = datetime.datetime.now()
         current_time = now.strftime("%D:%H:%M:%S")
-        print(current_time, "our data-path")
-        #os.mkdir(f"cash/{path}")
+
+        count+=1
+        print(f"\n"
+              f"Попытка номер: {count}, время: {current_time} ")
+
+        pyautogui.moveTo(coord["x"], coord["y"], 2) #двигаемся к началу и обновляем страницу аукцциона
+        autohotpy.moveMouseToPosition(coord["x"], coord["y"])
+
+        time.sleep(1)
+
+        stroke = InterceptionMouseStroke()
+
+        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
+        autohotpy.sendToDefaultMouse(stroke)
+        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
+        autohotpy.sendToDefaultMouse(stroke)
+
+        time.sleep(2) #очень важный таймаут, аук обновляется не сразу (0,5 сек), зато скрин делается мгновенно
 
         massives = get_data(coord, current_time)
         write_db(massives, current_time)
 
-        buy = position_to_buy(massives)
+        buy = position_to_buy(massives, current_time)
         print(buy, " это наш массив buy")
 
-        stroke = InterceptionMouseStroke()
 
         if len(buy)>0:
             for i in buy:
@@ -100,19 +118,9 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
                 print("Нажали ОК")
                 time.sleep(1)
 
-        pyautogui.moveTo(coord["x"], coord["y"], 2) #двигаемся к началу и обновляем страницу аукцциона
-        autohotpy.moveMouseToPosition(coord["x"], coord["y"])
-
-        time.sleep(1)
-
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN
-        autohotpy.sendToDefaultMouse(stroke)
-        stroke.state = InterceptionMouseState.INTERCEPTION_MOUSE_LEFT_BUTTON_UP
-        autohotpy.sendToDefaultMouse(stroke)
-
-        now = datetime.datetime.now()
-        print(now.strftime("%H:%M:%S"))
-        time.sleep(15)
+        #now = datetime.datetime.now()
+        #print(now.strftime("%H:%M:%S"))
+        #time.sleep(15)
 
 if __name__ == "__main__": #инициалихируем 2 потока
     threadOne = threading.Thread(target=do_moovs, name="first thread") #первый поток запускает кликера

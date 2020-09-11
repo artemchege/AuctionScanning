@@ -34,6 +34,7 @@ def make_screen(name):
 
 
 def make_screen_advanced(name, x, y, width, height=410, data_path=False):
+        #print("Зашли в make_screen_advanced с параметром: ", width)
         screen = pyautogui.screenshot(region=(x + 160, y - 14, width, height))  # 160 и 14 поправки относительно точки клика
         if data_path == False:
             screen.save(f"cash/{name}.jpg")
@@ -146,6 +147,8 @@ def get_data(coord, time):
     path  = time.replace("/","_").replace(":",".")
     os.mkdir(f"cash/{path}")
 
+    make_screen_advanced("common_view", coord["x"], coord["y"], 610, data_path=path)
+
     make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160, data_path=path)
     make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1", data_path=path)
     make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2", data_path=path)
@@ -179,15 +182,26 @@ def write_db(data, time):
         conn.commit()
     conn.close()
 
-def position_to_buy(data):
+def position_to_buy(data, date):
     result = list()
     if len(data[0]) != len(data[1]):  # проверим что колличество цен совпадает с колличеством предметов
-        print("Lenght of incomming massives in write_db() arent equal")
+        #print("Lenght of incomming massives in write_db() arent equal")
+        f = open("cash/log.txt", "a")
+        f.write(f"Дата: {date} \n"
+                f"Возникла ошибка: lenght of incomming massives in write_db() arent equal \n"
+                f"\n")
+        f.close()
         return result
     for i in range(8):
         name, price = data[0][i], data[1][i]
         if filter(name, price, i): #если фильтр дал результат
             result.append(i)
+            f = open("cash/log.txt", "a")
+            f.write(f"Дата: {date} \n"
+                    f"Был найден следующий предмет: {name} \n"
+                    f"По цене ниже: {price} \n"
+                    f"\n")
+            f.close()
     return result
 
 def filter(name, price, i):
@@ -196,13 +210,14 @@ def filter(name, price, i):
         price_to_find=5000000
         if name==item_to_find:
             if int(price)<price_to_find:
-                print(f"Предмет {item_to_find} по цене ниже {price_to_find} был найден")
+                print(f"Предмет {item_to_find} по цене {price} был найден")
                 print(f"Номер предмета на скрине: {i}")
                 return True
     except Exception as e:
         print(f"Возникла ошибка: {e}")
     finally:
-        print("Фильтр пройден, совпадений не найдено")
+        pass
+        #print("Фильтр пройден, совпадений не найдено")
 
 
 # сделать в будущем ресайд до 30 пикселей на букву (если будут ошибки в точности),
