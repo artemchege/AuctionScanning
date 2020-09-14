@@ -149,22 +149,27 @@ def get_data(coord, time):
 
     make_screen_advanced("common_view", coord["x"], coord["y"], 610, data_path=path)
 
-    make_screen_advanced("EndlessScreenItem", coord["x"], coord["y"], 160, data_path=path)
-    make_sharpness("EndlessScreenItem.jpg", 6, "EndlessScreenItemSt1", data_path=path)
-    make_black_white("EndlessScreenItemSt1.png", "EndlessScreenItemSt2", data_path=path)
-    items = recognition("EndlessScreenItemSt2.jpg", data_path=path).split("\n")
-    items = delete_empty_element(items)
-    for i in items:
-        print(i)
-    print()
-    make_screen_advanced("EndlessScreenPrices", coord["x"]+235, coord["y"], 140, data_path=path)
-    make_sharpness("EndlessScreenPrices.jpg", 6, "EndlessScreenPricesSt1", data_path=path)
-    make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2", data_path=path)
-    prices = recognition("EndlessScreenPricesSt2.jpg", data_path=path).split("\n")
-    prices = delete_spaces(delete_empty_element(prices))
-    for i in prices:
-        print(i)
-    return items, prices
+    items = list()
+    prices = list()
+
+    for i in range(8):
+
+        make_screen_advanced(f"Item-{i}", coord["x"], coord["y"]+52*i, 160, data_path=path, height=50)
+        make_sharpness(f"Item-{i}.jpg", 6, f"ItemSt1-{i}", data_path=path)
+        make_black_white(f"ItemSt1-{i}.png", f"ItemSt2-{i}", data_path=path)
+        item = recognition(f"ItemSt2-{i}.jpg", data_path=path)
+        items.append(item)
+        print(item)
+
+        make_screen_advanced(f"Price-{i}", coord["x"]+235, coord["y"]+52*i, 140, data_path=path, height=50)
+        make_sharpness(f"Price-{i}.jpg", 6, f"PriceSt1-{i}", data_path=path)
+        make_black_white(f"PriceSt1-{i}.png", f"PriceSt2-{i}", data_path=path)
+        price = recognition(f"PriceSt2-{i}.jpg", data_path=path)
+        prices.append(price)
+        print(price)
+
+    return items, delete_spaces(prices)
+
 
 def write_db(data, time):
     #now = datetime.datetime.now()
