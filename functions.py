@@ -69,7 +69,7 @@ def make_black_white(img, save_as, data_path=False):
     height = image.size[1]  # Определяем высоту.
     pix = image.load()  # Выгружаем значения пикселей
     if (mode == 5):
-        factor = 0
+        factor = -20
         for i in range(width):
             for j in range(height):
                 a = pix[i, j][0]
@@ -126,7 +126,7 @@ def make_screen_get_coordinates():  # создает скрин и возара�
     make_sharpness("fullscreen.png", 2, "FirstScreenSt1")
     make_black_white("FirstScreenSt1.png", "FirstScreenSt2")
     coord = get_coordinates(recognition("FirstScreenSt2.jpg", output="dictionary"))
-    global_coord = coord
+    #global_coord = coord
     return coord
 
 def delete_empty_element(income_list):
