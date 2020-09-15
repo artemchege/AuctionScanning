@@ -168,7 +168,11 @@ def get_data(coord, time):
         prices.append(price)
         print(price)
 
-    return items, delete_spaces(prices)
+    new_prices = delete_spaces(prices)
+    print(new_prices)
+    #сделать замену в каждой строке \n и тд на пустоту, попадает системное говно в массив
+
+    return items, new_prices
 
 
 def write_db(data, time):
