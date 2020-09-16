@@ -6,6 +6,7 @@
       <change beforePath="$PROJECT_DIR$/db.db" beforeDir="false" afterPath="$PROJECT_DIR$/db.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tessinput.tif" beforeDir="false" afterPath="$PROJECT_DIR$/tessinput.tif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,22 +73,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="452" y="164" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.728@0.0.1366.728" timestamp="1599557157583" />
-    <state width="1344" height="174" key="GridCell.Tab.0.bottom" timestamp="1599659010172">
+    <state width="1344" height="174" key="GridCell.Tab.0.bottom" timestamp="1600155925176">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1344" height="174" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1599659010172" />
-    <state width="1344" height="174" key="GridCell.Tab.0.center" timestamp="1599659010171">
+    <state width="1344" height="174" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1600155925176" />
+    <state width="1344" height="174" key="GridCell.Tab.0.center" timestamp="1600155925176">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1344" height="174" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1599659010171" />
-    <state width="1344" height="174" key="GridCell.Tab.0.left" timestamp="1599659010171">
+    <state width="1344" height="174" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1600155925176" />
+    <state width="1344" height="174" key="GridCell.Tab.0.left" timestamp="1600155925176">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1344" height="174" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1599659010171" />
-    <state width="1344" height="174" key="GridCell.Tab.0.right" timestamp="1599659010171">
+    <state width="1344" height="174" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1600155925176" />
+    <state width="1344" height="174" key="GridCell.Tab.0.right" timestamp="1600155925176">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1344" height="174" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1599659010171" />
+    <state width="1344" height="174" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1600155925176" />
     <state x="184" y="0" key="SettingsEditor" timestamp="1599722855311">
       <screen x="0" y="0" width="1366" height="728" />
     </state>

@@ -102,6 +102,19 @@ def recognition(img, output="list", data_path=False):  # передаем фин
             text = pytesseract.image_to_string(f"cash/{data_path}/{img}", lang="rus", config="get.images")
         return text
 
+def recognition_num(img, output="list", data_path=False):
+    if data_path == False:
+        if output == "dictionary":
+            text = pytesseract.image_to_data(f"cash/{img}", lang="rus", config="get.images -c tessedit_char_whitelist=0123456789", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+        else:
+            text = pytesseract.image_to_string(f"cash/{img}", lang="rus", config="get.images -c tessedit_char_whitelist=0123456789")
+        return text
+    else:
+        if output == "dictionary":
+            text = pytesseract.image_to_data(f"cash/{data_path}/{img}", lang="rus", config="get.images -c tessedit_char_whitelist=0123456789", output_type=Output.DICT)  # данный конфиг кинет нам файл того как видит изображение тессеракт после своих обработом tessinput
+        else:
+            text = pytesseract.image_to_string(f"cash/{data_path}/{img}", lang="rus", config="get.images -c tessedit_char_whitelist=0123456789")
+        return text
 
 def get_coordinates(list):  # ищем слово предложения и на его основе возвращаем кординаты для кликов
     try:
@@ -157,22 +170,21 @@ def get_data(coord, time):
         make_screen_advanced(f"Item-{i}", coord["x"], coord["y"]+52*i, 160, data_path=path, height=50)
         make_sharpness(f"Item-{i}.jpg", 6, f"ItemSt1-{i}", data_path=path)
         make_black_white(f"ItemSt1-{i}.png", f"ItemSt2-{i}", data_path=path)
-        item = recognition(f"ItemSt2-{i}.jpg", data_path=path)
+        item = recognition(f"ItemSt2-{i}.jpg", data_path=path).replace("\n\x0c", "")
         items.append(item)
         print(item)
 
         make_screen_advanced(f"Price-{i}", coord["x"]+235, coord["y"]+52*i, 140, data_path=path, height=50)
         make_sharpness(f"Price-{i}.jpg", 6, f"PriceSt1-{i}", data_path=path)
         make_black_white(f"PriceSt1-{i}.png", f"PriceSt2-{i}", data_path=path)
-        price = recognition(f"PriceSt2-{i}.jpg", data_path=path)
+        price = recognition_num(f"PriceSt2-{i}.jpg", data_path=path).replace("\n\x0c", "")
         prices.append(price)
         print(price)
 
-    new_prices = delete_spaces(prices)
-    print(new_prices)
-    #сделать замену в каждой строке \n и тд на пустоту, попадает системное говно в массив
+    #print(new_prices)
+    #print(items)
 
-    return items, new_prices
+    return items, delete_spaces(prices)
 
 
 def write_db(data, time):

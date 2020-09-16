@@ -34,13 +34,13 @@ def get_data(coord, time):
     make_sharpness("EndlessScreenPrices.jpg", 6, "EndlessScreenPricesSt1", data_path=path)
     make_black_white("EndlessScreenPricesSt1.png", "EndlessScreenPricesSt2", data_path=path)
     prices = recognition("EndlessScreenPricesSt2.jpg", data_path=path).split("\n")
-    prices = delete_spaces(delete_empty_element(prices))
+    prices = delete_spaces(delete_empty_element(prices)).replace("\n\x0c", "") #попробовать т возможно применить к айтемам тоже
     for i in prices:
         print(i)
     return items, prices
 
 def test_get_data(coord, time):
-    path  = time.replace("/","_").replace(":",".")
+    path = time.replace("/","_").replace(":",".")
     os.mkdir(f"cash/{path}")
 
     items = list()
