@@ -168,14 +168,14 @@ def get_data(coord, time):
     for i in range(8):
 
         make_screen_advanced(f"Item-{i}", coord["x"], coord["y"]+52*i, 160, data_path=path, height=50)
-        make_sharpness(f"Item-{i}.jpg", 6, f"ItemSt1-{i}", data_path=path)
+        make_sharpness(f"Item-{i}.jpg", 4, f"ItemSt1-{i}", data_path=path)
         make_black_white(f"ItemSt1-{i}.png", f"ItemSt2-{i}", data_path=path)
         item = recognition(f"ItemSt2-{i}.jpg", data_path=path).replace("\n\x0c", "")
         items.append(item)
         print(item)
 
         make_screen_advanced(f"Price-{i}", coord["x"]+235, coord["y"]+52*i, 140, data_path=path, height=50)
-        make_sharpness(f"Price-{i}.jpg", 6, f"PriceSt1-{i}", data_path=path)
+        make_sharpness(f"Price-{i}.jpg", 4, f"PriceSt1-{i}", data_path=path)
         make_black_white(f"PriceSt1-{i}.png", f"PriceSt2-{i}", data_path=path)
         price = recognition_num(f"PriceSt2-{i}.jpg", data_path=path).replace("\n\x0c", "")
         prices.append(price)

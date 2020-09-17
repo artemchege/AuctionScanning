@@ -80,9 +80,15 @@ def superCombo(autohotpy, event): #действия в бесконечном ц
               f"Попытка номер: {count}, время: {current_time} ")
 
         #двигаемся к кнопке обновления ауциона
-        pyautogui.moveTo(coord["x"], coord["y"], 2) #двигаемся к началу и обновляем страницу аукцциона
-        autohotpy.moveMouseToPosition(coord["x"], coord["y"])
-        time.sleep(1) #нужен ли он? после убрать
+        #через раз кликаем то на ближнее, то на дальнее оружие
+        if count%2==0:
+            pyautogui.moveTo(coord["x"], coord["y"], 2) #двигаемся к началу и обновляем страницу аукцциона
+            autohotpy.moveMouseToPosition(coord["x"], coord["y"])
+            time.sleep(1) #нужен ли он? после убрать
+        else:
+            pyautogui.moveTo(coord["x"], coord["y"]+30, 2)
+            autohotpy.moveMouseToPosition(coord["x"], coord["y"]+30)
+            time.sleep(1)
 
         #делаем щелчок
         left_click(autohotpy, event) #необходимо передавать эти атрбиуты из родительской функции, иначе не работает
